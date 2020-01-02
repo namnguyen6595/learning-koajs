@@ -7,8 +7,10 @@
     "koa": "^2.11.0",
     "koa-logger": "^3.2.1",
     "koa-router": "^7.4.0",
+    "koa-session": "^5.12.3",
     "koajs": "^1.0.0",
-    "nodemon": "^2.0.2"
+    "nodemon": "^2.0.2",
+    "raw-body": "^2.4.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

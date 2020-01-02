@@ -1,29 +1,39 @@
 const Koa = require('koa')
 const Router = require('koa-router')
+const rawBody = require('raw-body')
+const session = require('koa-session')
 
 const app = new Koa();
 const router = new Router()
 
-app.use(async (ctx, next) => {
-    ctx.body = `hello ${ctx}`
-    console.log("First")
-    await next()
-    console.log("First Done")
+app.keys = ['key1', 'key2']
+app.use(session(app))
+
+
+app.use(async function (ctx, next) {
+    ctx.cookies.set('name', 'tobi', { signed: true })
+
+    if (ctx.method !== 'GET' || ctx.path !== '/message') {
+        return await next()
+    }
+
+    const messages = ctx.session.messages || []
+
+    ctx.body = ctx.req.headers.cookie
 })
 
-app.use(async (ctx, next) => {
-    console.log("Second")
-    await next()
-    console.log("Second done")
+app.use(async function (ctx, next) {
+    if (ctx.method !== 'POST' || ctx.path !== '/new-message') return await next()
+
+    const message = await rawBody(ctx.req, {
+        encoding: 'utf8'
+    })
+
+    // push the message to the session
+
+    ctx.session.message = ctx.session.message || []
+    ctx.session.message.push(message)
 })
 
-router.post('/:id', async (ctx, next) => {
-    ctx.body = ctx.request.req
-    console.log(ctx.params)
-    await next()
-    return ctx
-})
-
-app.use(router.routes())
 app.use(router.allowedMethods())
 app.listen(3000, () => console.log("Server is running"))
